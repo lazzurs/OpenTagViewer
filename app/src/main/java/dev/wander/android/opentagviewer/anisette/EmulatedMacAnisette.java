@@ -321,6 +321,19 @@ public final class EmulatedMacAnisette implements AnisetteSource {
         return currentIdentity().serial();
     }
 
+    /**
+     * What CloudKit is told this device is, as an uppercase UUID: the emulated Mac's host UUID.
+     *
+     * <p>Called from Python's {@code icloud_bridge._forCloudKit}. FindMy.py's CloudKit client
+     * parses the account's device id as a UUID, and a Mac's is not one. Not on
+     * {@link AnisetteSource}: no other source has a device id that needs it.
+     */
+    public String cloudKitDeviceUuid() {
+        final String h = currentIdentity().hostUuid().toUpperCase(java.util.Locale.ROOT);
+        return h.substring(0, 8) + "-" + h.substring(8, 12) + "-" + h.substring(12, 16) + "-"
+                + h.substring(16, 20) + "-" + h.substring(20);
+    }
+
     @Override
     public String describe() {
         synchronized (LOCK) {

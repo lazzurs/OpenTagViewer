@@ -13,6 +13,7 @@ rename (rule 3).
 from __future__ import annotations
 
 import asyncio
+import uuid
 from types import SimpleNamespace
 from typing import Any
 
@@ -21,6 +22,7 @@ import pytest
 from findmy.reports import AppleAccount, RemoteAnisetteProvider
 
 import account_loop
+import icloud_bridge
 import main
 
 
@@ -111,6 +113,48 @@ class TestHsc409WithNoAu:
             assert "au" not in response["Status"]
         finally:
             account_loop.detach(account)
+
+MAC_DEVICE_ID = "00006000-0123456789ABCDEF"
+
+
+class TestWhatCloudKitIsToldTheDeviceIs:
+    def test_a_device_id_that_is_already_a_uuid_is_passed_through_untouched(self) -> None:
+        account = SimpleNamespace(device_uuid="9F1C2D3E-4B5A-4C6D-8E7F-001122334455")
+        assert icloud_bridge._forCloudKit(account) is account
+
+    def test_a_mac_device_id_gets_the_host_uuid_java_reports(self) -> None:
+        bridge = SimpleNamespace(cloudKitDeviceUuid=lambda: "00112233-4455-6677-8899-AABBCCDDEEFF")
+        account = SimpleNamespace(device_uuid=MAC_DEVICE_ID,
+                                  _anisette=SimpleNamespace(_bridge=bridge), serial="0PENTAGVTEST")
+
+        view = icloud_bridge._forCloudKit(account)
+
+        assert view.device_uuid == "00112233-4455-6677-8899-AABBCCDDEEFF"
+        # What the CloudKit client does with it, and what failed before.
+        assert uuid.UUID(view.device_uuid).hex.upper() == "00112233445566778899AABBCCDDEEFF"
+        # Everything else is the real account's.
+        assert view.serial == "0PENTAGVTEST"
+
+    def test_without_a_bridge_it_is_derived_and_stable(self) -> None:
+        first = icloud_bridge._forCloudKit(SimpleNamespace(device_uuid=MAC_DEVICE_ID))
+        again = icloud_bridge._forCloudKit(SimpleNamespace(device_uuid=MAC_DEVICE_ID))
+
+        uuid.UUID(first.device_uuid)
+        assert first.device_uuid == again.device_uuid
+
+    def test_a_method_reached_through_the_view_acts_on_the_real_account(self) -> None:
+        """request_pet swaps login state on `self` - it must be the account's self, not the view's."""
+        class Account:
+            device_uuid = MAC_DEVICE_ID
+            state = "before"
+
+            def change(self) -> None:
+                self.state = "after"
+
+        real = Account()
+        icloud_bridge._forCloudKit(real).change()
+        assert real.state == "after"
+
 
 class TestWhenTheInternalsMove:
     def test_an_account_without_gsa_request_is_left_alone(self, capsys) -> None:
