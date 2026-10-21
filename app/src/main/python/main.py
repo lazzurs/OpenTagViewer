@@ -207,11 +207,21 @@ class LocalAnisetteProvider(BaseAnisetteProvider):
 
     @property
     def otp(self) -> str:
-        return str(self._bridge.otp())
+        return self._said("one-time password", str(self._bridge.otp()))
 
     @property
     def machine(self) -> str:
-        return str(self._bridge.machine())
+        return self._said("machine id", str(self._bridge.machine()))
+
+    def _said(self, what: str, value: str) -> str:
+        """Pass the value on, saying why when Java had none.
+
+        Empty is still what goes to Apple - the contract is not to throw into a login - but
+        Apple's answer to it is only `ec -80009`, which names no cause. The reason is in Java.
+        """
+        if not value:
+            print(f"Local Anisette produced no {what}: {self._bridge.unavailableReason()}")
+        return value
 
     @property
     def router(self) -> str:

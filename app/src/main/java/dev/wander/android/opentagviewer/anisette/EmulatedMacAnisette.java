@@ -169,6 +169,11 @@ public final class EmulatedMacAnisette implements AnisetteSource {
             throw new IOException("could not create " + dir);
         }
         for (final Map.Entry<String, byte[]> file : opened.storeFiles().entrySet()) {
+            // The legacy whole-machine blob makes the library report "not provisioned" whenever
+            // it is present, and is never read back - see CoreAdi::beginSession.
+            if ("adi.pb".equals(file.getKey())) {
+                continue;
+            }
             final File target = new File(dir, file.getKey());
             final File partial = new File(dir, file.getKey() + ".partial");
             try (FileOutputStream out = new FileOutputStream(partial)) {

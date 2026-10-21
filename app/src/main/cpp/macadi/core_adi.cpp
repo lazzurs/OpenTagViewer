@@ -90,6 +90,12 @@ std::vector<uint8_t> CoreAdi::slice(uint64_t ptr, uint64_t len) {
 }
 
 void CoreAdi::beginSession() {
+    // Provisioning writes the legacy whole-machine blob as well as the per-user one, and while it
+    // is present the library reports the machine unprovisioned (see storePut). A process that
+    // restarts never sees it, because storePut refuses it; one that provisions and then asks for
+    // headers in the same process would, and sent Apple an empty machine id (ec -80009). So it
+    // goes before every session, not only on load.
+    vm_.files().erase(std::string(STORE_DIR) + "/" + LEGACY_STORE);
     vm_.resetSession();
     initialize();
 }
