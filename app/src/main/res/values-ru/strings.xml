@@ -247,7 +247,6 @@
     <string name="icloud_unlink_failed">Не удалось отвязать учётную запись Apple. Повторите попытку.</string>
     <string name="no_app_to_open_a_map_with">На этом телефоне нет приложения, способного открыть карту</string>
     <string name="icloud_loading_opening_account">Открытие вашей учётной записи Apple…</string>
-    <string name="icloud_loading_waiting_for_location_check">Ожидание завершения проверки местоположения…</string>
     <string name="export_logs">Экспорт журналов</string>
     <string name="log_file_has_been_exported_successfully">Файл журнала экспортирован</string>
     <string name="failed_to_export_log_file">Не удалось экспортировать файл журнала</string>
@@ -333,7 +332,6 @@
     <string name="battery_short_low">низкий</string>
     <string name="battery_short_very_low">критический</string>
     <string name="battery">Батарея</string>
-    <string name="nearby_now_with_battery_and_signal">Рядом (%2$s) · Батарея %1$s</string>
     <string name="heard_over_bluetooth">По Bluetooth</string>
     <string name="last_seen">Последний сигнал</string>
     <string name="signal">Сигнал</string>
@@ -423,4 +421,5 @@
     <string name="ring_failed_reason">Не удалось подать сигнал: %1$s</string>
     <string name="server_url_not_https">Не https: токен API будет передан без шифрования.</string>
     <string name="google_find_hub_setup_guide">Как это настроить</string>
+    <string name="battery_icon_description">Батарея %1$s</string>
 </resources>

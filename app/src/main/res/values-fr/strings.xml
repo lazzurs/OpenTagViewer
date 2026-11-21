@@ -248,7 +248,6 @@ Vous pourrez réassocier votre compte plus tard. Le code de votre appareil Apple
     <string name="icloud_unlink_failed">Impossible de dissocier votre compte Apple. Veuillez réessayer.</string>
     <string name="no_app_to_open_a_map_with">Aucune application de ce téléphone ne peut ouvrir une carte</string>
     <string name="icloud_loading_opening_account">Ouverture de votre compte Apple…</string>
-    <string name="icloud_loading_waiting_for_location_check">En attente de la fin de la recherche de position…</string>
     <string name="export_logs">Exporter les journaux</string>
     <string name="log_file_has_been_exported_successfully">Le fichier journal a bien été exporté</string>
     <string name="failed_to_export_log_file">Impossible d’exporter le fichier journal</string>
@@ -334,7 +333,6 @@ Vous pouvez configurer cela maintenant, ou à tout moment depuis les réglages.<
     <string name="battery_short_low">faible</string>
     <string name="battery_short_very_low">critique</string>
     <string name="battery">Batterie</string>
-    <string name="nearby_now_with_battery_and_signal">À proximité (%2$s) · Batterie %1$s</string>
     <string name="heard_over_bluetooth">Par Bluetooth</string>
     <string name="last_seen">Dernière détection</string>
     <string name="signal">Signal</string>
@@ -423,4 +421,5 @@ Si Apple a simplement refusé la requête, il vaut mieux attendre et réessayer.
     <string name="ring_failed_reason">Échec de la sonnerie : %1$s</string>
     <string name="server_url_not_https">Pas en https : le jeton d\'API sera envoyé sans chiffrement.</string>
     <string name="google_find_hub_setup_guide">Comment le configurer</string>
+    <string name="battery_icon_description">Batterie %1$s</string>
 </resources>

@@ -247,7 +247,6 @@ Du kannst sie später wieder verknüpfen. Dafür brauchst du den Gerätecode dei
     <string name="icloud_unlink_failed">Die Verknüpfung mit deinem Apple-Konto konnte nicht aufgehoben werden. Bitte versuche es erneut.</string>
     <string name="no_app_to_open_a_map_with">Keine App auf diesem Telefon kann eine Karte öffnen</string>
     <string name="icloud_loading_opening_account">Apple-Konto wird geöffnet …</string>
-    <string name="icloud_loading_waiting_for_location_check">Warten auf den Abschluss der Standortprüfung …</string>
     <string name="export_logs">Protokolle exportieren</string>
     <string name="log_file_has_been_exported_successfully">Protokolldatei wurde exportiert</string>
     <string name="failed_to_export_log_file">Protokolldatei konnte nicht exportiert werden</string>
@@ -327,7 +326,6 @@ Du kannst das jetzt einrichten oder jederzeit später in den Einstellungen.</str
     <string name="ring_status_success">Klingelt!</string>
     <string name="nearby_now">In der Nähe</string>
     <string name="nearby_now_with_battery">In der Nähe · Akku %1$s</string>
-    <string name="nearby_now_with_battery_and_signal">In der Nähe (%2$s) · Akku %1$s</string>
     <string name="battery_from_tag_itself">Gerade per Bluetooth vom Tag selbst gelesen, nicht aus iCloud.</string>
     <string name="battery_short_full">voll</string>
     <string name="battery_short_medium">mittel</string>
@@ -423,4 +421,5 @@ Wenn Apple die Anfrage lediglich abgelehnt hat, lohnt es sich, zu warten und es 
     <string name="ring_failed_reason">Klingeln fehlgeschlagen: %1$s</string>
     <string name="server_url_not_https">Kein https: Das API-Token wird unverschlüsselt gesendet.</string>
     <string name="google_find_hub_setup_guide">So richtest du das ein</string>
+    <string name="battery_icon_description">Akku %1$s</string>
 </resources>

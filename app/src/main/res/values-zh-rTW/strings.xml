@@ -247,7 +247,6 @@
     <string name="icloud_unlink_failed">無法取消連結你的 Apple 帳戶，請重試。</string>
     <string name="no_app_to_open_a_map_with">此手機上沒有可以開啟地圖的應用程式</string>
     <string name="icloud_loading_opening_account">正在開啟您的 Apple 帳戶…</string>
-    <string name="icloud_loading_waiting_for_location_check">正在等待位置檢查完成…</string>
     <string name="export_logs">匯出日誌</string>
     <string name="log_file_has_been_exported_successfully">日誌檔案已匯出</string>
     <string name="failed_to_export_log_file">無法匯出日誌檔案</string>
@@ -333,7 +332,6 @@
     <string name="battery_short_low">偏低</string>
     <string name="battery_short_very_low">極低</string>
     <string name="battery">電量</string>
-    <string name="nearby_now_with_battery_and_signal">在附近（%2$s）· 電量%1$s</string>
     <string name="heard_over_bluetooth">透過藍牙</string>
     <string name="last_seen">最後收到</string>
     <string name="signal">訊號強度</string>
@@ -423,4 +421,5 @@
     <string name="ring_failed_reason">響鈴失敗：%1$s</string>
     <string name="server_url_not_https">不是 https：API 權杖將以未加密方式傳送。</string>
     <string name="google_find_hub_setup_guide">如何設定</string>
+    <string name="battery_icon_description">電量%1$s</string>
 </resources>

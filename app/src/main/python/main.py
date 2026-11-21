@@ -30,6 +30,7 @@ from findmy.reports.twofactor import (
     SyncSecondFactorMethod
 )
 
+import account_loop
 import identity as app_identity
 
 
@@ -206,11 +207,33 @@ class LocalAnisetteProvider(BaseAnisetteProvider):
 
     @property
     def otp(self) -> str:
-        return str(self._bridge.otp())
+        return self._said("one-time password", str(self._bridge.otp()))
 
     @property
     def machine(self) -> str:
-        return str(self._bridge.machine())
+        return self._said("machine id", str(self._bridge.machine()))
+
+    def _said(self, what: str, value: str) -> str:
+        """Pass the value on, saying why when Java had none.
+
+        Empty is still what goes to Apple - the contract is not to throw into a login - but
+        Apple's answer to it is only `ec -80009`, which names no cause. The reason is in Java.
+        """
+        if not value:
+            print(f"Local Anisette produced no {what}: {self._bridge.unavailableReason()}")
+        return value
+
+    @property
+    def router(self) -> str:
+        """`X-Apple-I-MD-RINFO`, from Java rather than FindMy.py's Android constant.
+
+        The emulated Mac is provisioned under a routing number Apple assigns, and has to present
+        that one. A bridge without the method - an older fake in a test - keeps the library's.
+        """
+        router = getattr(self._bridge, "router", None)
+        if router is None:
+            return super().router
+        return str(router())
 
     def to_json(self, dst=None, /):
         """Deliberately the remote mapping - see the class docstring.
@@ -318,6 +341,8 @@ def loginSync(email: str, password: str, anisetteServerUrl: str,
             timeout=LOGIN_TIMEOUT_SECONDS,
             **app_identity.deviceIdsForNewSession(localAnisette),
         )
+        # Before the first call, while the loop is still idle - see account_loop.attach.
+        account_loop.attach(acc)
 
         state = acc.login(email, password)
 
@@ -836,9 +861,11 @@ def getAccount(
             return None
 
         data = json.loads(serializedAccountData)
+        app_identity.respellRefusedOsName(data)
 
         acc = AppleAccount.from_json(data)
         _preferLocalAnisette(acc, localAnisette)
+        account_loop.attach(acc)
 
         print(f"Restored account, login state: {acc.login_state}")
 
@@ -975,6 +1002,9 @@ def closeAccount(account: AppleAccount) -> bool:
 
         loop.run_until_complete(account.close())
         print("Closed the account's HTTP session and connector.")
+        # After the close, which takes its turn like any other call: the loop's thread is only
+        # stopped once nothing on it still needs the session.
+        account_loop.detach(account)
         return True
     except Exception:
         # Discarding this account regardless, so a failure here changes nothing the caller does.
@@ -1959,7 +1989,10 @@ def getLastReports(
             # which meant no beacon's updated alignment was persisted - so every later
             # fetch started from the same wide range again and never converged.
             try:
-                fetched = _fetchReportsForAccessory(account, airtag, start_dt, now_dt)
+                # Turns per request rather than per fetch, so the iCloud screen is not kept
+                # waiting for a whole key walk - see account_loop.
+                with account_loop.interleaving():
+                    fetched = _fetchReportsForAccessory(account, airtag, start_dt, now_dt)
                 reports = fetched.reports or []
             except Exception:
                 failures += 1
@@ -2097,7 +2130,8 @@ def getReports(
             width_before = _isAlignmentWide(airtag, start_dt, end_dt)
 
             try:
-                reports = _fetchReportsInRange(account, airtag, start_dt, end_dt) or []
+                with account_loop.interleaving():
+                    reports = _fetchReportsInRange(account, airtag, start_dt, end_dt) or []
             except Exception:
                 failures += 1
                 print(f"Fetch failed for {beaconId}, continuing with the rest: "

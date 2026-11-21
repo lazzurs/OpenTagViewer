@@ -40,8 +40,10 @@ import plistlib
 import sys
 import time
 import traceback
+import uuid
 from typing import Any
 
+import account_loop
 import identity as app_identity
 from exporter import icloud
 from exporter.identity import written_by_opentagviewer
@@ -344,9 +346,10 @@ class ICloudSession:
     :meth:`close` when the screen is finished with - in a `finally`, because two of these steps
     hold sockets and an abandoned session leaks them for the life of the process.
 
-    **Not thread-safe, and it cannot be made so.** Every step runs a coroutine on the account's
-    own event loop, and a loop cannot be driven from two threads at once. Java calls these from
-    a single Rx chain.
+    **Not thread-safe with itself.** The steps build on each other's state, and Java calls them
+    from a single Rx chain. Beside a location fetch it is safe, and does not wait for one to
+    finish: the account's loop runs on its own thread and each step takes its turn on the
+    account between the fetch's requests - see :mod:`account_loop`.
     """
 
     def __init__(self, account: Any, asyncAccount: Any, loop: Any) -> None:
@@ -423,7 +426,7 @@ class ICloudSession:
 
         try:
             client = self._awaiting(
-                lambda: icloud.open_client(self._async, self._identity),
+                lambda: icloud.open_client(_forCloudKit(self._async), self._identity),
                 "opening the Find My client")
             self._awaiting(client.__aenter__, "starting the keychain session")
             self._client = client
@@ -662,6 +665,11 @@ class ICloudSession:
             print(f"iCloud bridge: reading as {peer.peer_id}, with no passcode")
 
             return json.dumps({"ok": True})
+        except account_loop.AccountClosedError:
+            # Not the membership: the account under this session was replaced and closed. Both
+            # Java callers forget the membership on MEMBERSHIP_UNUSABLE, which here cost a device
+            # passcode for nothing. The ordinary classification lets the background read retry.
+            return _unexpected("resuming the keychain session")
         except Exception:
             # Worth its own reason. A membership that no longer works is not a broken app - the
             # peer may have been removed from the account - and the answer is to unlock with a
@@ -890,6 +898,51 @@ def _plist(mapping: Any) -> str | None:
     return plistlib.dumps(dict(mapping), fmt=plistlib.FMT_XML).decode("utf-8")
 
 
+class _CloudKitDeviceView:
+    """
+    The account, except that `device_uuid` is a UUID - for the keychain and CloudKit clients only.
+
+    FindMy.py's CloudKit client does `uuid.UUID(account.device_uuid)` for the device identifier it
+    sends. An emulated Mac's device id is a Mac provisioning UDID, `00006000-` and sixteen hex,
+    which is not a UUID, so opening the client failed with "badly formed hexadecimal UUID string"
+    before anything was sent. CloudKit's identifier is a different field from `X-Mme-Device-Id`,
+    so this answers it with another stable value and forwards everything else to the real
+    account - Grand Slam, tokens and PET renewals keep the real device id. After
+    sacca97/os-findmy-e `tag_keys.CloudKitIdentity`, which read tags this way.
+    """
+
+    def __init__(self, account: Any, deviceUuid: str) -> None:
+        self._account = account
+        self._deviceUuid = deviceUuid
+
+    @property
+    def device_uuid(self) -> str:
+        return self._deviceUuid
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._account, name)
+
+
+def _forCloudKit(asyncAccount: Any) -> Any:
+    """`asyncAccount`, or a view of it whose device id CloudKit can parse."""
+    deviceId = getattr(asyncAccount, "device_uuid", None)
+    if not isinstance(deviceId, str):
+        return asyncAccount
+    try:
+        uuid.UUID(deviceId)
+        return asyncAccount
+    except ValueError:
+        pass
+
+    # Derived from the device id, which travels with the session. It used to be the emulated
+    # Mac's host UUID when Java was reachable and this otherwise, so one session told CloudKit two
+    # different devices depending on whether it was restored onto the Mac or a remote server - and
+    # on the second the Mac's store, and its host UUID with it, may no longer exist.
+    stable = str(uuid.uuid5(uuid.NAMESPACE_URL, f"opentagviewer:device:{deviceId}")).upper()
+    print(f"The device id is not a UUID; CloudKit is told {stable} instead")
+    return _CloudKitDeviceView(asyncAccount, stable)
+
+
 def openSession(account: Any) -> ICloudSession | None:
     """
     Start an iCloud conversation on the account the app is already signed in with.
@@ -909,6 +962,15 @@ def openSession(account: Any) -> ICloudSession | None:
         print(
             "FindMy.py's account internals have changed: no _asyncacc or _evt_loop, so the"
             " iCloud flow cannot be driven from the account the app is signed in with.")
+        return None
+
+    if not isinstance(loop, account_loop.AccountLoop):
+        # Java no longer makes these steps wait behind a location fetch, which is only safe
+        # with the loop on its own thread. Without it, both would run `run_until_complete` on
+        # one loop at once - "This event loop is already running", for good.
+        print(
+            "The account's loop is not on a thread of its own, so the iCloud flow cannot run"
+            " beside a location fetch. See account_loop.attach.")
         return None
 
     return ICloudSession(account, asyncAccount, loop)

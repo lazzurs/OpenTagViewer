@@ -247,7 +247,6 @@
     <string name="icloud_unlink_failed">Apple アカウントの連携を解除できませんでした。もう一度お試しください。</string>
     <string name="no_app_to_open_a_map_with">この端末には地図を開けるアプリがありません</string>
     <string name="icloud_loading_opening_account">Apple アカウントを開いています…</string>
-    <string name="icloud_loading_waiting_for_location_check">位置情報の確認が終わるのを待っています…</string>
     <string name="export_logs">ログを書き出す</string>
     <string name="log_file_has_been_exported_successfully">ログファイルを書き出しました</string>
     <string name="failed_to_export_log_file">ログファイルを書き出せませんでした</string>
@@ -333,7 +332,6 @@
     <string name="battery_short_low">少</string>
     <string name="battery_short_very_low">危険</string>
     <string name="battery">バッテリー</string>
-    <string name="nearby_now_with_battery_and_signal">近くにあります（%2$s）· 電池 %1$s</string>
     <string name="heard_over_bluetooth">Bluetooth 経由</string>
     <string name="last_seen">最後の受信</string>
     <string name="signal">信号強度</string>
@@ -423,4 +421,5 @@ Appleが要求を拒否しただけなら、少し待ってからもう一度お
     <string name="ring_failed_reason">鳴らせませんでした: %1$s</string>
     <string name="server_url_not_https">https ではありません。API トークンは暗号化されずに送信されます。</string>
     <string name="google_find_hub_setup_guide">設定方法</string>
+    <string name="battery_icon_description">電池 %1$s</string>
 </resources>

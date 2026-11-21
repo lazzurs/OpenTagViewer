@@ -247,7 +247,6 @@ Je kunt later opnieuw koppelen. Daarvoor heb je de toegangscode van je Apple-app
     <string name="icloud_unlink_failed">Kan de koppeling met je Apple-account niet opheffen. Probeer het opnieuw.</string>
     <string name="no_app_to_open_a_map_with">Geen app op deze telefoon kan een kaart openen</string>
     <string name="icloud_loading_opening_account">Je Apple-account wordt geopend…</string>
-    <string name="icloud_loading_waiting_for_location_check">Wachten tot de locatiecontrole klaar is…</string>
     <string name="export_logs">Logboeken exporteren</string>
     <string name="log_file_has_been_exported_successfully">Logbestand is geëxporteerd</string>
     <string name="failed_to_export_log_file">Kon het logbestand niet exporteren</string>
@@ -333,7 +332,6 @@ Je kunt dit nu instellen, of later altijd nog via Instellingen.</string>
     <string name="battery_short_low">laag</string>
     <string name="battery_short_very_low">kritiek</string>
     <string name="battery">Batterij</string>
-    <string name="nearby_now_with_battery_and_signal">In de buurt (%2$s) · Batterij %1$s</string>
     <string name="heard_over_bluetooth">Via bluetooth</string>
     <string name="last_seen">Laatst gehoord</string>
     <string name="signal">Signaal</string>
@@ -423,4 +421,5 @@ Als Apple het verzoek simpelweg weigerde, is even wachten en opnieuw proberen he
     <string name="ring_failed_reason">Laten afgaan mislukt: %1$s</string>
     <string name="server_url_not_https">Geen https: het API-token wordt onversleuteld verstuurd.</string>
     <string name="google_find_hub_setup_guide">Zo stel je dit in</string>
+    <string name="battery_icon_description">Batterij %1$s</string>
 </resources>
